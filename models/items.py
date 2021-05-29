@@ -18,7 +18,54 @@ class Storage(Base):
     size = Column(Integer, default=30)
 
 
-class Weapon(Base):
+class Item(Base):
+    id = Column(Integer, primary_key=True)
+    speed_factor = Column(Float, default=1)
+    critical_factor = Column(Float, default=1)
+    reflect = Column(Integer, default=0)
+    block_chance = Column(Integer, default=0)
+
+    add_max_health = Column(Integer, default=0)
+    add_max_stamina = Column(Integer, default=0)
+    add_max_soul_essence = Column(Integer, default=0)
+
+    health_per_second = Column(Integer, default=0)
+    stamina_per_second = Column(Integer, default=0)
+    soul_essence_per_second = Column(Integer, default=0)
+
+    physical = Column(Integer, default=0)
+    fire = Column(Integer, default=0)
+    ice = Column(Integer, default=0)
+    electric = Column(Integer, default=0)
+    poison = Column(Integer, default=0)
+    light = Column(Integer, default=0)
+    dark = Column(Integer, default=0)
+    gravity = Column(Integer, default=0)
+    space = Column(Integer, default=0)
+
+    magic_res = Column(Integer, default=0)
+    elemental_res = Column(Integer, default=0)
+
+    physical_res = Column(Integer, default=0)
+    fire_res = Column(Integer, default=0)
+    ice_res = Column(Integer, default=0)
+    electric_res = Column(Integer, default=0)
+    poison_res = Column(Integer, default=0)
+    light_res = Column(Integer, default=0)
+    dark_res = Column(Integer, default=0)
+    gravity_res = Column(Integer, default=0)
+    space_res = Column(Integer, default=0)
+
+    physical_penetration = Column(Integer, default=0)
+    magic_penetration = Column(Integer, default=0)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'item',
+        'polymorphic_on': type
+    }
+
+
+class Weapon(Item):
     class Quality(enum.Enum):
         RUSTY = 'Rusty'
         NORMAL = 'Normal'
@@ -30,23 +77,14 @@ class Weapon(Base):
 
     __tablename__ = 'weapon'
 
-    id = Column(Integer, primary_key=True)
-    speed_factor = Column(Float, default=1)
-    critical_factor = Column(Float, default=1)
+    quality = Column(Enum(Quality), default=Quality.RUSTY)
 
-    physical = Column(Integer, default=0)
-    fire = Column(Integer, default=0)
-    ice = Column(Integer, default=0)
-    electric = Column(Integer, default=0)
-    poison = Column(Integer, default=0)
-    light = Column(Integer, default=0)
-    dark = Column(Integer, default=0)
-
-    physical_penetration = Column(Integer, default=0)
-    magic_penetration = Column(Integer, default=0)
+    __mapper_args__ = {
+        'polymorphic_identity': 'weapon'
+    }
 
 
-class Consumable(Base):
+class Consumable(Item):
     class Quality(enum.Enum):
         SMALL = 'Small'
         NORMAL = ''
@@ -58,11 +96,15 @@ class Consumable(Base):
 
     __tablename__ = 'consumable'
 
-    id = Column(Integer, primary_key=True)
-    health_amount = Column(Integer, default=0)
-    stamina_amount = Column(Integer, default=0)
-    soul_essence_amount = Column(Integer, default=0)
-    speed_amount = Column(Integer, default=0)
+    quality = Column(Enum(Quality), default=Quality.SMALL)
+
+    health = Column(Integer, default=0)
+    stamina = Column(Integer, default=0)
+    soul_essence = Column(Integer, default=0)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'consumable'
+    }
 
 
 class Wearable(Base):
@@ -77,33 +119,20 @@ class Wearable(Base):
 
     __tablename__ = 'wearable'
 
-    id = Column(Integer, primary_key=True)
-    reflect = Column(Integer, default=0)
-    block_chance = Column(Integer, default=0)
+    quality = Column(Enum(Quality), default=Quality.SMALL)
 
-    physical = Column(Integer, default=0)
-    fire = Column(Integer, default=0)
-    ice = Column(Integer, default=0)
-    electric = Column(Integer, default=0)
-    poison = Column(Integer, default=0)
-    light = Column(Integer, default=0)
-    dark = Column(Integer, default=0)
+    __mapper_args__ = {
+        'polymorphic_identity': 'wearable'
+    }
 
 
-class Item(Base):
+class StorageItem(Base):
     __tablename__ = 'item'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String)
-    base_price = Column(Integer, default=0)
-
-    # Weapons
-    weapon = Column(ForeignKey('weapon.id'), nullable=True)
-    weapon_quality = Column(Enum(Weapon.Quality), default=None)
-
-    # Consumables
-    consumable = Column(ForeignKey('consumable.id'), nullable=True)
-    consumable_quality = Column(Enum(Consumable.Quality), default=None)
+    quality = Column(String, default=None)
+    storage = Column(ForeignKey('storage.id'))
+    item = Column(ForeignKey('item.id'))
 
 
 class Equipment(Base):
@@ -111,6 +140,7 @@ class Equipment(Base):
 
     id = Column(Integer, primary_key=True)
     hero = Column(ForeignKey('item.id'))
+
     head = Column(ForeignKey('item.id'), default=None)
     chest = Column(ForeignKey('item.id'), default=None)
     shoulders = Column(ForeignKey('item.id'), default=None)

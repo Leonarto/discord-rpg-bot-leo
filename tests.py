@@ -33,12 +33,12 @@ class TestHeroService(TestCase):
         hero = self.service.assign_class_by_name(hero, HeroClass.Classes.FIGHTER.value)
 
         stats = self.service.get_stats(hero)
-
-        self.assertEqual(stats.strength, 6)
         self.assertEqual(stats.vitality, 5)
 
         hero = self.service.assign_name('Golo', 123)
         hero = self.service.assign_class_by_name(hero, HeroClass.Classes.MAGE.value)
+
+        self.assertEqual(stats.strength, 6)
 
         stats = self.service.get_stats(hero)
 
@@ -49,3 +49,6 @@ class TestHeroService(TestCase):
         stats = self.service.get_stats(hero)
 
         self.assertEqual(stats.level, 3)
+
+    def test_hero_equip(self):
+        pass
